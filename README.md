@@ -1,119 +1,85 @@
-# CEN API Go Server
+# TCN API Go Server
 
-This is the Go implementation of the CEN API for _Privacy-Preserving Distributed Contact Tracing_,
-to be used in CEN Apps following CEN protocols.
-
-This is the Go implementation of the [CEN API](https://docs.google.com/document/d/1f65V3PI214-uYfZLUZtm55kdVwoazIMqGJrxcYNI4eg/edit) for _Privacy-Preserving Distributed Contact Tracing_.
-
-Our mission is to reduce transmission of disease, by developing applications and protocols that support
-contact tracing without loss of privacy (no identifiable information).  The CEN Protocol achieves this goal
-by combining Bluetooth Low Energy with lightweight client and server technology.
-
-*Tech Lead*: Sourabh Niyogi (`sourabh@wolk.com`)
-
-The flow is as follows:
-
-1. iOS/Android Apps use secret 128-bit AES keys (CENKeys) to broadcast CENs using Bluetooth Low Energy (BLE)
-
-2. CEN Apps records neighbor CENs in close physical proximity to the user.
-
-3. Users submit symptom / infection reports and reveal the secret CENKey in their application to a CEN API endpoint, resulting in a POST to `/cenreport` endpoint with `Report`  
-
-4. Apps poll every N mins to `/cenkeys` for CENKeys and matches them to CENs the user has observed.
-
-5. Upon match, the application retrieves the report for user action that re
+This is the Go implementation of the TCN API for _Privacy-Preserving Distributed
+Exposure Alerting_, that can be used in any apps following [TCN protocol](https://github.com/TCNCoalition/TCN).
 
 ## Active Endpoint
-* CEN API Endpoint: (active) https://coepi.wolk.com:8080   
-* CEN API Documentation in Postman: https://documenter.getpostman.com/view/10811660/SzYXXzC8?version=latest
+* v1 API Endpoint: (active) v1.api.coepi.org 
 
-## Documentation
-
-v2 Core Design: https://docs.google.com/document/d/1f65V3PI214-uYfZLUZtm55kdVwoazIMqGJrxcYNI4eg/edit)
-
-This design is expected be revised subject to CoEpi iOS / Android POC.
-Please provide feedback over Slack and standup.
-
-### POST `/cenreport`
-Request Body: JSON Object - `CENReport`
+### POST `/tcnreport`
+Request Body: JSON Object - `TCNReport`
 ```
-# curl -X POST "https://coepi.wolk.com:8080/cenreport/13298327ebcebe7f153b956e4596d503" -d '{"reportID":"80d2910e783ab87837b444c224a31c9745afffaaacd4fb6eacf233b5f30e3113","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","cenKeys":"b85c4b373adde4c66651ba63aef40f48,41371323cc938a0e3c55b0694bfd23f5","reportTimeStamp":1585622063}'
+# curl -X POST "https://coepi.wolk.com:8080/tcnreport/13298327ebcebe7f153b956e4596d503" -d '{"reportID":"80d2910e783ab87837b444c224a31c9745afffaaacd4fb6eacf233b5f30e3113","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","tcnKeys":"b85c4b373adde4c66651ba63aef40f48,41371323cc938a0e3c55b0694bfd23f5","reportTimeStamp":1585622063}'
 ```
 
-### GET `/cenkeys/<timestamp>`
+### GET `/tcnkeys/<timestamp>`
 
-Returns CENKeys from `<timestamp>` to `<timestamp-3600>` (Under consideration)
+Returns TCNKeys from `<timestamp>` to `<timestamp-3600>` (Under consideration)
 
 Sample:
 ```
-# curl "https://coepi.wolk.com:8080/cenkeys"
+# curl "https://coepi.wolk.com:8080/tcnkeys"
 ["13298327ebcebe7f153b956e4596d503","a6ad64cecdc9e2cf6ffb400fc71c1d62"]
 ```
 
-### GET `/cenreport/<cenkey>`
+### GET `/tcnreport/<tcnkey>`
 
-Returns reports associated with CENKey.
+Returns reports associated with TCNKey.
 
 Sample:
 ```
-# curl "https://coepi.wolk.com:8080/cenreport/13298327ebcebe7f153b956e4596d503"
+# curl "https://coepi.wolk.com:8080/tcnreport/13298327ebcebe7f153b956e4596d503"
 [{"reportID":"338b0448df60447a23b36fd02ad5a7d8f036836e0ce52b848d3302001cc67a40","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","reportTimeStamp":1585622194}
 ```
 
 The flow is as follows:`
-1. Apps use secret 128-bit AES keys (CENKeys) to broadcast CENs using BLE
+1. Apps use secret 128-bit AES keys (TCNKeys) to broadcast TCNs using BLE
 
-2. CEN Apps records neighbor CENs in close proximity to the user
+2. TCN-compatible apps records neighbor TCNs in close proximity to the user
 
-3. Users submit symptom / infection reports and reveal the secret CENKey in their application to a CEN API endpoint, resulting in a POST to `/cenreport` endpoint with `Report`  
+3. Users submit symptom / infection reports and reveal the secret TCNKey in their application to a TCN API endpoint, resulting in a POST to `/tcnreport` endpoint with `Report`  
 
-4. Apps poll every N mins to `/cenkeys` for CEN Keys posts and matches them to CENs the user has observed.
+4. Apps poll every N mins to `/tcnkeys` for TCN Keys posts and matches them to TCNs the user has observed.
 
-5. Upon match the application retrieves the report
+5. Upon match the application retrieves the report and renders an exposure alert. 
 
-See also:
-* Design documents:
-* CEN API Documentation: (to be updated)
-* CEN API Endpoint: (under construction) https://cenapi.wolk.com:8080   
-* Rust Implementation:
 
-### POST `/cenreport`
-Request Body: JSON Object - `CENReport`
+### POST `/tcnreport`
+Request Body: JSON Object - `TCNReport`
 ```
-{"reportID":"1","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","cenKeys":"2cb87ba2f39a3119e4096cc6e04e68a8,4bb5c242916d923fe3565bd5c6b09dd3"}
+{"reportID":"1","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","tcnKeys":"2cb87ba2f39a3119e4096cc6e04e68a8,4bb5c242916d923fe3565bd5c6b09dd3"}
 ```
 
-### GET `/cenkeys/<timestamp>`
+### GET `/tcnkeys/<timestamp>`
 
-Returns CENKeys from `<timestamp>` to `<timestamp-3600>` (Under consideration)
+Returns TCNKeys from `<timestamp>` to `<timestamp-3600>` (Under consideration)
 
 Sample:
 ```
 ["67f48de38f35c231e34e533649ecbfeb","b85c4b373adde4c66651ba63aef40f48"]
 ```
 
-### POST `/cenreport/<cenkey>`
+### POST `/tcnreport/<tcnkey>`
 
-Returns reports associated with CENKey.
+Returns reports associated with TCNKey.
 
 Sample:
 ```
 [{"reportID":"6d68785abd6f99ea646fd7c775a14a36f7cec7635a76d3b5554908c6c3a09af5","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","reportTimeStamp":1585326048}]
->>>>>>> 8af009e... v0.2 CEN API with mysql (#4)
+>>>>>>> 8af009e... v0.2 TCN API with mysql (#4)
 ```
-
 
 ### MySQL Setup
 
-1. After setting up your Mysql instance and updating the Default Connection strings in server.go, create tables with `cen.sql`
+1. After setting up your Mysql instance and updating the Default Connection strings in server.go, create tables with `tcn.sql`
 
-2. Check that you can (a) POST a CEN Report; (b) GET CEN Keys; (c) GET CEN Reports  with `go test -run TestBackendSimple`
+2. Check that you can (a) POST a TCN Report; (b) GET TCN Keys; (c) GET TCN Reports  with `go test -run TestBackendSimple`
 ```
 [root@d5 backend]# go test -run TestBackendSimple
-CENReportJSON Sample: {"reportID":"1","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","cenKeys":"79c256d12f5cad1af81e3658c0416e4e,4c29aa2b332199c82c825887ba179e27"}
-CENKey 0: 79c256d12f5cad1af81e3658c0416e4e
-CENKey 1: 4c29aa2b332199c82c825887ba179e27
-ProcessGetCENKeys 18 records
+TCNReportJSON Sample: {"reportID":"1","report":"c2V2ZXJlIGZldmVyLGNvdWdoaW5nLGhhcmQgdG8gYnJlYXRoZQ==","tcnKeys":"79c256d12f5cad1af81e3658c0416e4e,4c29aa2b332199c82c825887ba179e27"}
+TCNKey 0: 79c256d12f5cad1af81e3658c0416e4e
+TCNKey 1: 4c29aa2b332199c82c825887ba179e27
+ProcessGetTCNKeys 18 records
 Recent Keys: [67f48de38f35c231e34e533649ecbfeb]
 Recent Keys: [b85c4b373adde4c66651ba63aef40f48]
 Recent Keys: [046316753d2e5684d542a0a53944c6f7]
@@ -132,28 +98,30 @@ Recent Keys: [2cb87ba2f39a3119e4096cc6e04e68a8]
 Recent Keys: [4bb5c242916d923fe3565bd5c6b09dd3]
 Recent Keys: [4c29aa2b332199c82c825887ba179e27]
 Recent Keys: [79c256d12f5cad1af81e3658c0416e4e]
-ProcessGetCENReport SUCCESS (67f48de38f35c231e34e533649ecbfeb): [severe fever,coughing,hard to breathe]
-ProcessGetCENReport SUCCESS (b85c4b373adde4c66651ba63aef40f48): [severe fever,coughing,hard to breathe]
+ProcessGetTCNReport SUCCESS (67f48de38f35c231e34e533649ecbfeb): [severe fever,coughing,hard to breathe]
+ProcessGetTCNReport SUCCESS (b85c4b373adde4c66651ba63aef40f48): [severe fever,coughing,hard to breathe]
 PASS
 ok	github.com/Co-Epi/coepi-backend-go/backend	0.032s
 ```
 
 ## Build + Run
-```
-$ make cen
-go build -o bin/cen
-Done building cen.  Run "bin/cen" to launch CEN Server.
+
+Requires Go > 1.12 with module support
+
+```sh
+go build
+./tcn-server
 ```
 
 ## Test
 
-After getting your SSL Certs in the right spot with a DNS entry that matches and running `bin/cen`, you can run this test:
+After getting your SSL Certs in the right spot with a DNS entry that matches and running `bin/tcn`, you can run this test:
 ```
-[root@d5 coepi-backend-go]# go test -run TestCEN
-EndpointCENReport[OK]
-EndpointCENKeys: ["67f48de38f35c231e34e533649ecbfeb","b85c4b373adde4c66651ba63aef40f48","046316753d2e5684d542a0a53944c6f7","41371323cc938a0e3c55b0694bfd23f5","8a54afbc79912d56d30d357ca6d86f06","a8c15b2e81c7aa185618698b9bc61eb8","001cb7c122064b79ebd2e878889c17c0","fc87cbdf6e3638cb9ddffbe77cddff07","5c52f9a5e539d69b179c5badb4aed724","6413987722a3590faf38ec84461e5d2f","0c0b9ddff6ab2d22519a793d941bdeb5","befa6a1c065c9162890edd614ec33fcd","4cfc2187fa3c6e5c9cafaeb03d09298c","a1c7d918f2f7d464b493a6ed3e200bfd","2cb87ba2f39a3119e4096cc6e04e68a8","4bb5c242916d923fe3565bd5c6b09dd3","4c29aa2b332199c82c825887ba179e27","79c256d12f5cad1af81e3658c0416e4e","0e987952d86e19197a2be845d4423ae7","e98a09d7c3e9f7a9e43906f2eb8635d7"]
-EndpointCENKeys SUCCESS: [severe fever,coughing,hard to breathe]
-EndpointCENKeys SUCCESS: [severe fever,coughing,hard to breathe]
+[root@d5 coepi-backend-go]# go test -run TestTCN
+EndpointTCNReport[OK]
+EndpointTCNKeys: ["67f48de38f35c231e34e533649ecbfeb","b85c4b373adde4c66651ba63aef40f48","046316753d2e5684d542a0a53944c6f7","41371323cc938a0e3c55b0694bfd23f5","8a54afbc79912d56d30d357ca6d86f06","a8c15b2e81c7aa185618698b9bc61eb8","001cb7c122064b79ebd2e878889c17c0","fc87cbdf6e3638cb9ddffbe77cddff07","5c52f9a5e539d69b179c5badb4aed724","6413987722a3590faf38ec84461e5d2f","0c0b9ddff6ab2d22519a793d941bdeb5","befa6a1c065c9162890edd614ec33fcd","4cfc2187fa3c6e5c9cafaeb03d09298c","a1c7d918f2f7d464b493a6ed3e200bfd","2cb87ba2f39a3119e4096cc6e04e68a8","4bb5c242916d923fe3565bd5c6b09dd3","4c29aa2b332199c82c825887ba179e27","79c256d12f5cad1af81e3658c0416e4e","0e987952d86e19197a2be845d4423ae7","e98a09d7c3e9f7a9e43906f2eb8635d7"]
+EndpointTCNKeys SUCCESS: [severe fever,coughing,hard to breathe]
+EndpointTCNKeys SUCCESS: [severe fever,coughing,hard to breathe]
 PASS
 ok	github.com/Co-Epi/coepi-backend-go	0.124s
 ```
@@ -164,12 +132,12 @@ which does the same things as the above backend test except going through the HT
 
 Right now the schema is pretty simple.  
 
-1. `CENKeys` holds the mapping between revealed keys (cenKey) and reports (reportID), with `reportID` being the join key between the 2 tables.
+1. `TCNKeys` holds the mapping between revealed keys (tcnKey) and reports (reportID), with `reportID` being the join key between the 2 tables.
 
 ```
-mysql> select * from CENKeys;
+mysql> select * from TCNKeys;
 +----------------------------------+------------------------------------------------------------------+------------+
-| cenKey                           | reportID                                                         | reportTS   |
+| tcnKey                           | reportID                                                         | reportTS   |
 +----------------------------------+------------------------------------------------------------------+------------+
 | 67f48de38f35c231e34e533649ecbfeb | e6f6cc772d11270cbac9b6e6cb24c451dc54b54172547f9ce327e9b5c5961609 | 1585326035 |
 | b85c4b373adde4c66651ba63aef40f48 | e6f6cc772d11270cbac9b6e6cb24c451dc54b54172547f9ce327e9b5c5961609 | 1585326035 |
@@ -185,10 +153,10 @@ mysql> select * from CENKeys;
 +----------------------------------+------------------------------------------------------------------+------------+
 ```
 
-2. `CENReport` holds the reports
+2. `TCNReport` holds the reports
 
 ```
-mysql> select * from CENReport;
+mysql> select * from TCNReport;
 +------------------------------------------------------------------+---------------------------------------+----------------+------------+
 | reportID                                                         | report                                | reportMimeType | reportTS   |
 +------------------------------------------------------------------+---------------------------------------+----------------+------------+
@@ -207,18 +175,10 @@ mysql> select * from CENReport;
 ```
 
 Implementation:
- - The `/cenreport` POST writes the raw CENReport to the `cenkeys` table (1-3 rows, with 1 row per week) and `CENReport` table (1 new row).
- - The `/cenkeys` GET endpoint reads just the `CENKeys` table, requiring the index.  
- - The `/cenreport` GET endpoint reads the join between the 2 tables with the CENKey.
+ - The `/tcnreport` POST writes the raw TCNReport to the `tcnkeys` table (1-3 rows, with 1 row per week) and `TCNReport` table (1 new row).
+ - The `/tcnkeys` GET endpoint reads just the `TCNKeys` table, requiring the index.  
+ - The `/tcnreport` GET endpoint reads the join between the 2 tables with the TCNKey.
 
 It is expected that CDNs can replace this, with mobile applications 
 
 Importantly, no PII data is held in any table.
-
-## Contributions to Go Server
-
-Great!  Join the CoEpi Slack channel and say hi to @sourabh, or email sourabh@wolk.com.
-
-* If you are an experienced Go person (channels, mutexes / concurrency) please consider extending this server to support infection reports.
-
-* If you are an experienced iOS or Android person with a strong interest in Bluetooth Low Energy and want to do client-server bridge work, check out [app-ios](https://github.com/Co-Epi/app-ios) or [app-android](https://github.com/Co-Epi/app-android).
